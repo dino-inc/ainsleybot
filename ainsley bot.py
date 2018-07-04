@@ -2,11 +2,30 @@ import discord
 from discord.ext import commands
 import aiohttp
 import re
-import sys, traceback
+import sys
+import traceback
+from utils.events import Event
+
+
+class BotWEvents(commands.Bot):
+    def __init__(self, *args, **kwargs):
+        super(BotWEvents, self).__init__(*args, **kwargs)
+        self.listeners = Event()
+
+    def add_event(self, func: function):
+        self.listeners.add_method(func)
+
+    def remove_event(self, name: str):
+        self.listeners.remove_method(name)
+
+    def call_event(self, fname, *args, **kwargs):
+        self.listeners(fname, *args, **kwargs)
 
 
 description = '''Reaction bot.'''
-bot = commands.Bot(command_prefix=';', description=description)
+bot = BotWEvents(command_prefix=';', description=description)
+
+
 @bot.event
 async def on_ready():
     global shitposting
@@ -14,6 +33,7 @@ async def on_ready():
     global bestof
     global counter
     global worstof
+    global thotchamber
     global owner
     print('Logged in as')
     print(bot.user.name, bot.user.id)
@@ -26,6 +46,7 @@ async def on_ready():
     memes = memeecon.get_channel(313400507743862794)
     worstof = memeecon.get_channel(395695465955328000)
     bestof = memeecon.get_channel(300792095688491009)
+    thotchamber = memeecon.get_channel(438492624207478784)
 
 initial_extensions = ['cogs.rollcall', 'cogs.owner']
 
@@ -51,8 +72,12 @@ async def on_message(message):
             test = message.guild.id
         except:
             return
+
+        if message.channel == thotchamber:
+            bot.call_events(message)
+
         if message.channel == shitposting:
-            ainsleybot = ['🇦', '🇮', '🇳', '🇸', '🇱', '🇪', '🇾',]
+            ainsleybot = ['🇦', '🇮', '🇳', '🇸', '🇱', '🇪', '🇾']
             if message.guild.id == 231084230808043522:
                 ainsleybot = [':spicyoil:331582837025406976', ':dab:310682824749350913'] + ainsleybot
             else:
@@ -63,8 +88,7 @@ async def on_message(message):
                 counter = 0
             await message.add_reaction(ainsleybot[counter])
 
-
-        if message.channel== memes:
+        if message.channel == memes:
             if message.content != "":
                 if message.content.startswith("http") and "/" in message.content and "." in message.content and \
                         " " not in message.content:
@@ -153,6 +177,7 @@ async def on_raw_reaction_add(reaction, messageid, channelid, member):
                 print("Terrible worst of post by "+str(message.author)+".")
             await worstof.send(embed=em)
 
+
 def get_filename_from_cd(cd):
     """
     Get filename from content-disposition
@@ -170,6 +195,7 @@ async def fetch_img(session, url):
     async with session.get(url) as response:
       assert response.status == 200
       return await response.read()
+
 
 async def check_votes(votearrow):
     global shitposting
@@ -220,6 +246,7 @@ async def check_votes(votearrow):
         cache = open("bestof.txt", "a")
         cache.write(str(votearrow.id) + " ")
         cache.close()
+
 # ainsleybot
 token = open("token.txt", 'r')
 bot.run(token.read(), bot=True, reconnect=True)

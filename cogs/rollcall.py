@@ -2,13 +2,50 @@ import discord
 from discord.ext import commands
 import sqlite3
 import asyncio
+import re
+from collections import Counter
+from itertools import chain
+
 
 class RollCall:
+    FOR = "aye|yeet|jeff"
+    AGAINST = "nay|nae|gay"
+    NEUTRAL = "abstain"
+    FAVORS = (FOR, AGAINST, NEUTRAL)
+    ANY = "|".join(FAVORS)
+
     def __init__(self, bot):
         self.bot = bot
+        self.voting = {}
+        self.quorum_size = 13
+
+    async def during_call(self, message: discord.Message):
+        def meets_quorum():
+            return len(self.voting.keys()) >= self.quorum_size
+
+        def exists(regex):
+            return re.match(regex, message.content, re.IGNORECASE) is not None
+
+        if meets_quorum():
+            return
+
+        if exists(RollCall.ANY):
+            user = message.author.id
+            for favor in RollCall.FAVORS:
+                if exists(favor):
+                    self.voting[user] = favor
+            if meets_quorum():
+                votes = Counter(chain.from_iterable(self.voting.values()))
+                yeas = votes[RollCall.FOR]
+                nays = votes[RollCall.AGAINST]
+                abst = votes[RollCall.NEUTRAL]
+                votestatus = "agreed to" if yeas > nays else "denied"
+                abststatus = f" with {abst} abstentions" if abst > 0 else ""
+                m = f"The Yeas and Nays are {yeas} - {nays}{abststatus}.  The motion is {votestatus}."
+                await message.channel.send(m)
 
     @commands.command()
-    async def add(self, ctx, member : discord.Member):
+    async def add(self, ctx, member: discord.Member):
         con = sqlite3.connect('members.db')
         c = con.cursor()
         id = member.id
@@ -32,7 +69,7 @@ class RollCall:
         await ctx.send(error)
 
     @commands.command()
-    async def remove(self, ctx, member : discord.Member):
+    async def remove(self, ctx, member: discord.Member):
         con = sqlite3.connect('members.db')
         c = con.cursor()
         id = member.id
@@ -58,7 +95,7 @@ class RollCall:
                 pass
 
     @commands.command()
-    async def call(self, ctx, time = None):
+    async def call(self, ctx, time=None):
         role = discord.utils.get(ctx.guild.roles, id=438521521166876692)
         if role not in ctx.author.roles:
             await ctx.send('Only the Chamber Speaker can use this commmand')
@@ -77,12 +114,15 @@ class RollCall:
             await ctx.send('***Voting time is up. Is there anyone who would like to cast or change a vote?***')
             await asyncio.sleep(60)
             await ctx.send('***All votes are now final***')
+        self.bot.add_event(self.during_call)
+        self.voting = {}
         con.commit()
         con.close()
 
     @call.error
     async def call_error(self, ctx, error):
         await ctx.send(error)
+
 
 def setup(bot):
     bot.add_cog(RollCall(bot))
