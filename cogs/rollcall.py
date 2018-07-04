@@ -16,16 +16,28 @@ class RollCall:
     def __init__(self, bot):
         self.bot = bot
         self.voting = {}
-        self.quorum_size = 13
+        self.quorum_size = 0
+
+    async def end_motion(self, sender):
+        votes = Counter(self.voting.values())
+        yeas = votes[RollCall.FOR]
+        nays = votes[RollCall.AGAINST]
+        abst = votes[RollCall.NEUTRAL]
+        votestatus = "agreed to" if yeas > nays else "denied"
+        abststatus = f" with {abst} abstentions" if abst > 0 else ""
+        m = f"The Yeas and Nays are {yeas} - {nays}{abststatus}.  The motion is {votestatus}."
+        await sender(m)
+        self.voting = {}
+        self.bot.remove_event(self.during_call.__name__)
+
+    def meets_quorum(self):
+        return len(self.voting.keys()) >= self.quorum_size
 
     async def during_call(self, message: discord.Message):
-        def meets_quorum():
-            return len(self.voting.keys()) >= self.quorum_size
-
         def exists(regex):
             return re.match(regex, message.content, re.IGNORECASE) is not None
 
-        if meets_quorum():
+        if self.meets_quorum():
             return
 
         if exists(RollCall.ANY):
@@ -33,17 +45,8 @@ class RollCall:
             for favor in RollCall.FAVORS:
                 if exists(favor):
                     self.voting[user] = favor
-            if meets_quorum():
-                votes = Counter(self.voting.values())
-                yeas = votes[RollCall.FOR]
-                nays = votes[RollCall.AGAINST]
-                abst = votes[RollCall.NEUTRAL]
-                votestatus = "agreed to" if yeas > nays else "denied"
-                abststatus = f" with {abst} abstentions" if abst > 0 else ""
-                m = f"The Yeas and Nays are {yeas} - {nays}{abststatus}.  The motion is {votestatus}."
-                await message.channel.send(m)
-                self.voting = {}
-                self.bot.remove_event(self.during_call.__name__)
+            if self.meets_quorum():
+                await self.end_motion(message.channel.send)
 
     @commands.command()
     async def add(self, ctx, member: discord.Member):
@@ -103,18 +106,27 @@ class RollCall:
             return
         con = sqlite3.connect('members.db')
         c = con.cursor()
+        # Will determine initial quorum size
+        qcounter = 0
+        rtext = ""
         for i in c.execute('SELECT * FROM members'):
-            await ctx.send('Mr <@{}>'.format(str(i[0])))
+            rtext += 'Mr <@{}>\n'.format(str(i[0]))
+            qcounter = qcounter + 1
             print(i[0])
-        if time == None:
-            pass
-        else:
+        await ctx.send(rtext)
+        self.quorum_size = qcounter
+        if time is not None:
             await ctx.send('***You have {} minutes. The clock is on.***'.format(time))
             minutes = int(time) * 60
             await asyncio.sleep(minutes)
-            await ctx.send('***Voting time is up. Is there anyone who would like to cast or change a vote?***')
+            self.quorum_size = int(self.quorum_size / 2)
+            nvotes = len(self.voting.keys())
+            await ctx.send(f'***Quorum is now reduced to {self.quorum_size}. There are currently {nvotes} votes. '
+                           'Is there anyone who would like to cast or change a vote?***')
             await asyncio.sleep(60)
-            await ctx.send('***All votes are now final***')
+            if self.meets_quorum():
+                await self.end_motion(ctx.send)
+            # await ctx.send('***All votes are now final***')
         self.bot.add_event(self.during_call)
         self.voting = {}
         con.commit()
@@ -123,15 +135,22 @@ class RollCall:
     @commands.command()
     async def getvotes(self, ctx):
         counter = 0
+        rtext = ""
         for k in self.voting:
             response = {RollCall.FOR: "For", RollCall.AGAINST: "Against", RollCall.NEUTRAL: "Abstain"}
             v = self.voting[k]
             if v is None:
-                return
-            await ctx.send(f"<@{k}>: {response[v]}")
+                continue
+            rtext += f"<@{k}>: {response[v]}\n"
             counter = counter + 1
         if counter == 0:
             await ctx.send("No one has voted or no motion is on the table.")
+        else:
+            await ctx.send(rtext)
+
+    @commands.command()
+    async def endvoting(self, ctx):
+        await self.end_motion(ctx.send)
 
     @call.error
     async def call_error(self, ctx, error):
