@@ -1,3 +1,6 @@
+from typing import Callable
+
+
 # Cheap event emitter
 class Event(dict):
     def __call__(self, fname, *args, **kwargs):
@@ -13,7 +16,7 @@ class Event(dict):
             if callable(f):
                 f(*args, **kwargs)
 
-    def add_method(self, func: function):
+    def add_method(self, func: Callable):
         name = func.__name__
         self.update({name: func})
 

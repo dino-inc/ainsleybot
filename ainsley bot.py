@@ -5,6 +5,7 @@ import re
 import sys
 import traceback
 from utils.events import Event
+from typing import Callable
 
 
 class BotWEvents(commands.Bot):
@@ -12,13 +13,13 @@ class BotWEvents(commands.Bot):
         super(BotWEvents, self).__init__(*args, **kwargs)
         self.listeners = Event()
 
-    def add_event(self, func: function):
+    def add_event(self, func: Callable):
         self.listeners.add_method(func)
 
     def remove_event(self, name: str):
         self.listeners.remove_method(name)
 
-    def call_event(self, fname, *args, **kwargs):
+    def call_event(self, fname: str, *args, **kwargs):
         self.listeners(fname, *args, **kwargs)
 
 
