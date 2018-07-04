@@ -21,4 +21,4 @@ class Event(dict):
         self.update({name: func})
 
     def remove_method(self, name: str):
-        self.update({name: None})
+        self.pop(name)

@@ -16,6 +16,9 @@ class BotWEvents(commands.Bot):
     def add_event(self, func: Callable):
         self.listeners.add_method(func)
 
+    def has_event(self, name: str):
+        return name in self.listeners
+
     def remove_event(self, name: str):
         self.listeners.remove_method(name)
 
