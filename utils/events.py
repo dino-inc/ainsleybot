@@ -3,18 +3,18 @@ from typing import Callable
 
 # Cheap event emitter
 class Event(dict):
-    def __call__(self, fname, *args, **kwargs):
+    async def __call__(self, fname, *args, **kwargs):
         if fname == "*":
-            self.call_all(*args, **kwargs)
+            await self.call_all(*args, **kwargs)
         else:
             f = self.get(fname)
             if callable(f):
-                f(*args, **kwargs)
+                await f(*args, **kwargs)
 
-    def call_all(self, *args, **kwargs):
+    async def call_all(self, *args, **kwargs):
         for _, f in self.items():
             if callable(f):
-                f(*args, **kwargs)
+                await f(*args, **kwargs)
 
     def add_method(self, func: Callable):
         name = func.__name__

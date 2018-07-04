@@ -4,7 +4,6 @@ import sqlite3
 import asyncio
 import re
 from collections import Counter
-from itertools import chain
 
 
 class RollCall:
@@ -35,7 +34,7 @@ class RollCall:
                 if exists(favor):
                     self.voting[user] = favor
             if meets_quorum():
-                votes = Counter(chain.from_iterable(self.voting.values()))
+                votes = Counter(self.voting.values())
                 yeas = votes[RollCall.FOR]
                 nays = votes[RollCall.AGAINST]
                 abst = votes[RollCall.NEUTRAL]
@@ -43,6 +42,8 @@ class RollCall:
                 abststatus = f" with {abst} abstentions" if abst > 0 else ""
                 m = f"The Yeas and Nays are {yeas} - {nays}{abststatus}.  The motion is {votestatus}."
                 await message.channel.send(m)
+                self.voting = {}
+                self.bot.remove_event(self.during_call.__name__)
 
     @commands.command()
     async def add(self, ctx, member: discord.Member):
@@ -118,6 +119,19 @@ class RollCall:
         self.voting = {}
         con.commit()
         con.close()
+
+    @commands.command()
+    async def getvotes(self, ctx):
+        counter = 0
+        for k in self.voting:
+            response = {RollCall.FOR: "For", RollCall.AGAINST: "Against", RollCall.NEUTRAL: "Abstain"}
+            v = self.voting[k]
+            if v is None:
+                return
+            await ctx.send(f"<@{k}>: {response[v]}")
+            counter = counter + 1
+        if counter == 0:
+            await ctx.send("No one has voted or no motion is on the table.")
 
     @call.error
     async def call_error(self, ctx, error):

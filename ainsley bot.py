@@ -10,7 +10,7 @@ from typing import Callable
 
 class BotWEvents(commands.Bot):
     def __init__(self, *args, **kwargs):
-        super(BotWEvents, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.listeners = Event()
 
     def add_event(self, func: Callable):
@@ -19,8 +19,8 @@ class BotWEvents(commands.Bot):
     def remove_event(self, name: str):
         self.listeners.remove_method(name)
 
-    def call_event(self, fname: str, *args, **kwargs):
-        self.listeners(fname, *args, **kwargs)
+    async def call_event(self, fname: str, *args, **kwargs):
+        await self.listeners(fname, *args, **kwargs)
 
 
 description = '''Reaction bot.'''
@@ -75,7 +75,7 @@ async def on_message(message):
             return
 
         if message.channel == thotchamber:
-            bot.call_events(message)
+            await bot.call_event("during_call", message)
 
         if message.channel == shitposting:
             ainsleybot = ['🇦', '🇮', '🇳', '🇸', '🇱', '🇪', '🇾']
