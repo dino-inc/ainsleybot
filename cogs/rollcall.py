@@ -7,7 +7,7 @@ from collections import Counter
 
 
 class RollCall:
-    FOR = "aye|yeet|jeff"
+    FOR = "aye|yeet|jeff|yea"
     AGAINST = "nay|nae|gay"
     NEUTRAL = "abstain|present"
     FAVORS = (FOR, AGAINST, NEUTRAL)
@@ -155,19 +155,23 @@ class RollCall:
     async def getvotes(self, ctx):
         counter = 0
         rtext = ""
+        votes = Counter(self.voting.values())
+        yeas = votes[RollCall.FOR]
+        nays = votes[RollCall.AGAINST]
+        abst = votes[RollCall.NEUTRAL]
         for k in self.voting:
             response = {RollCall.FOR: "For", RollCall.AGAINST: "Against", RollCall.NEUTRAL: "Abstain"}
             v = self.voting[k]
             if v is None:
                 continue
-            rtext += f"<@{k}>: {response[v]}\n"
+            rtext += f"{ctx.guild.get_member(k).display_name}: {response[v]}\n"
             counter = counter + 1
         if not self.active_motion():
             await ctx.send("No motion is on the table.")
         elif counter == 0:
             await ctx.send("No one has voted.")
         else:
-            await ctx.send(rtext)
+            await ctx.send(f"The Yeas and Nays are currently {yeas} - {nays} with {abst} abstentions.\n"+rtext)
 
     @commands.command()
     async def endvoting(self, ctx):
