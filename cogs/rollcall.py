@@ -9,7 +9,7 @@ from collections import Counter
 class RollCall:
     FOR = "aye|yeet|jeff"
     AGAINST = "nay|nae|gay"
-    NEUTRAL = "abstain"
+    NEUTRAL = "abstain|present"
     FAVORS = (FOR, AGAINST, NEUTRAL)
     ANY = "|".join(FAVORS)
 
@@ -81,7 +81,7 @@ class RollCall:
         c = con.cursor()
         id = member.id
         c.execute("DELETE FROM members WHERE member_id=(?)", (id,))
-        await ctx.send('Succesfully removed **{}**'.format(member.display_name))
+        await ctx.send('Successfully removed **{}**'.format(member.display_name))
         con.commit()
         con.close()
 
@@ -133,6 +133,21 @@ class RollCall:
                 if self.meets_quorum() and self.active_motion():
                     await self.end_motion(ctx.send)
                 # await ctx.send('***All votes are now final***')
+        con.commit()
+        con.close()
+
+    @commands.command()
+    async def purge(self, ctx):
+        role = discord.utils.get(ctx.guild.roles, id=438521521166876692)
+        if role not in ctx.author.roles:
+            await ctx.send('Only the Chamber Speaker can use this commmand')
+            return
+        con = sqlite3.connect('members.db')
+        c = con.cursor()
+        for i in c.execute('SELECT * FROM members'):
+            if ctx.guild.get_member(i[0]) is None:
+                c.execute("DELETE FROM members WHERE member_id=(?)", (i[0],))
+                await ctx.send('Automatically removed <@{}> for no longer being in the server.'.format(i[0]))
         con.commit()
         con.close()
 
