@@ -218,7 +218,7 @@ async def check_votes(votearrow):
 
     for i in votearrow.reactions:
 
-        if str(i.emoji) == ("<:upvote:335141910773628928>") and i.count > 27 and votearrow.channel != bestof:
+        if str(i.emoji) == ("<:upvote:335141910773628928>") and i.count > 34 and votearrow.channel != bestof:
             isstar = True
     if isstar == True:      
         
