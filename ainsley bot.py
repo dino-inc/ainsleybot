@@ -54,7 +54,7 @@ async def on_ready():
     thotchamber = memeecon.get_channel(438492624207478784)
     yandere = memeecon.get_channel(468474666718199838)
 
-initial_extensions = ['cogs.rollcall', 'cogs.owner']
+initial_extensions = ['cogs.rollcall', 'cogs.owner', 'cogs.yandere simulator']
 
 
 if __name__ == '__main__':
