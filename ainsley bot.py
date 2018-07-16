@@ -39,6 +39,7 @@ async def on_ready():
     global worstof
     global thotchamber
     global owner
+    global yandere
     print('Logged in as')
     print(bot.user.name, bot.user.id)
     print('------')
@@ -51,6 +52,7 @@ async def on_ready():
     worstof = memeecon.get_channel(395695465955328000)
     bestof = memeecon.get_channel(300792095688491009)
     thotchamber = memeecon.get_channel(438492624207478784)
+    yandere = memeecon.get_channel(468474666718199838)
 
 initial_extensions = ['cogs.rollcall', 'cogs.owner']
 
