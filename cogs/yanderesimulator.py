@@ -13,15 +13,13 @@ class YandereSimulator:
                     'ramirez', 'nigger', 'nlgger', 'n1gger', 'n|gger', 'faggot', 'fagget', 'faggotry', 'protip',
                     'brotip','tldr', 'tl;dr', 'i am 12', 'im 12', 'i\'m 12', 'you dead', 'you ded', 'u dead', 'u ded', 'do et',
                     'do eet', 'do eet', 'doo eet', 'du et', 'wut.', 'wat.', 'lol wut', 'lol wat']
-        self.memeecon = bot.get_guild(231084230808043522)
-        self.yandere = memeecon.get_channel(468474666718199838)
+        guild = 231084230808043522
+        memeecon = self.bot.get_channel(guild)
         self.banned_role = discord.utils.get(memeecon.roles, name='banned from stream')
-        print('loaded cog')
-
+        self.yandere = memeecon.get_channel(468474666718199838)
 
 
     async def on_message(self, message):
-        print('detected')
         if message.channel == self.yandere:
             for word in banned_words:
                 if word in message.content:
