@@ -38,7 +38,7 @@ class RollCall:
 
     async def during_call(self, message: discord.Message):
         def exists(regex):
-            return re.match(regex, message.content, re.IGNORECASE) is not None
+            return re.search(regex, message.content, re.IGNORECASE) is not None
 
         if self.meets_quorum():
             return
