@@ -181,6 +181,7 @@ async def on_raw_reaction_add(reaction, messageid, channelid, member):
         print("deleted post for negative votes by "+str(message.author))
     if message.channel == voting and emojitest == (335141910773628928):
         await check_votes(message)
+# worst of
     if str(message.id) in open('worstof.txt').read():
         match = True
     if reaction.id == 379319474639208458:
@@ -189,7 +190,7 @@ async def on_raw_reaction_add(reaction, messageid, channelid, member):
             if str(x.emoji) == "<:shitpost:379319474639208458>":
                 shitpostreaction = x
         if (shitpostreaction.count > 5 and message.channel.name != bestof.name\
-                and message.channel.name != worstof.name and match == False) or member == owner:
+                and message.channel.name != worstof.name and match == False):
             # embed message itself
             em = discord.Embed(title='👺 Shitpost 👺', description=message.content, colour=0xFFD700)
             em.set_author(name=message.author.display_name, icon_url=message.author.avatar_url)
@@ -205,11 +206,36 @@ async def on_raw_reaction_add(reaction, messageid, channelid, member):
             cache.close()
 
             # sending actual embed
-            if member == owner:
-                print("Boosted worst_of post by "+str(message.author)+" via executive order.")
-            else:
-                print("Terrible worst of post by "+str(message.author)+".")
+            print("Terrible worst of post by "+str(message.author)+".")
             await worstof.send(embed=em)
+    match = False
+# starboard
+    if str(message.id) in open('starboard.txt').read():
+        match = True
+    if reaction.name == '⭐':
+        starboardreaction = None
+        for x in message.reactions:
+            if x.emoji == "⭐":
+                starboardreaction = x
+        if (starboardreaction.count > 6 and message.channel.name != bestof.name\
+                and message.channel.name != worstof.name and match == False):
+            # embed message itself
+            em = discord.Embed(title='⭐ Best Of ⭐', description=message.content, colour=0xFFD700)
+            em.set_author(name=message.author.display_name, icon_url=message.author.avatar_url)
+            # embed url images
+            try:
+                attach = message.attachments
+                em.set_image(url = attach[0].url)
+            except:
+                pass
+            # writing message id to starboard.txt in order to check for dupes
+            cache = open("starboard.txt", "a+",encoding="utf8")
+            cache.write(str(message.id) + " ")
+            cache.close()
+
+            # sending actual embed
+            print("Best of post by "+str(message.author)+".")
+            await bestof.send(embed=em)
 
 
 def get_filename_from_cd(cd):
