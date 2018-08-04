@@ -192,7 +192,7 @@ async def on_raw_reaction_add(reaction, messageid, channelid, member):
         if (shitpostreaction.count > 5 and message.channel.name != bestof.name\
                 and message.channel.name != worstof.name and message.channel.name != memes.name and match == False):
             # embed message itself
-            em = discord.Embed(title='👺 Shitpost 👺', description=message.content, colour=0xFFD700)
+            em = discord.Embed(title=f'👺 Shitpost From {message.channel.name} 👺', description=message.content, colour=0xFFD700)
             em.set_author(name=message.author.display_name, icon_url=message.author.avatar_url)
             # embed url images
             try:
@@ -220,7 +220,7 @@ async def on_raw_reaction_add(reaction, messageid, channelid, member):
         if (starboardreaction.count > 6 and message.channel.name != bestof.name\
                 and message.channel.name != worstof.name and match == False):
             # embed message itself
-            em = discord.Embed(title='⭐ Best Of ⭐', description=message.content, colour=0xFFD700)
+            em = discord.Embed(title=f'⭐ Best Of From {message.channel.name}⭐', description=message.content, colour=0xFFD700)
             em.set_author(name=message.author.display_name, icon_url=message.author.avatar_url)
             # embed url images
             try:
