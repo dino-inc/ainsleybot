@@ -54,7 +54,6 @@ async def on_ready():
     worstof = memeecon.get_channel(395695465955328000)
     bestof = memeecon.get_channel(300792095688491009)
     thotchamber = memeecon.get_channel(438492624207478784)
-    yandere = memeecon.get_channel(468474666718199838)
     banned_role = discord.utils.get(memeecon.roles, name='banned from stream')
 
 
@@ -125,28 +124,6 @@ async def on_message(message):
                 await message.add_reaction(':downvote:335141916989456384')
     except:
         pass
-    banned_words = ['candlejack', 'candle jack', 'l-a-g', 'l a g', 'lag?', 'lag ', ' lag', 'laggy', 'l.ag', 'l.a.g',
-                    'lagged', 'Iagging', 'lagging', 'l4gging', 'lagy', 'laag', 'laaag', 'laaaag', 'laaaaag', 'lagg',
-                    'laggg',
-                    'lagggg', 'laggggg', 'implying', 'lmplying', '1mplaying', 'in before', 'inb4', 'in-b4', 'in b4',
-                    'in b 4',
-                    'ib4 ', 'cool story', 'coolstory', 'doom3', 'doom 3', 'd00m 3', 'doom three', 'plz ', ' plz',
-                    'pl0x',
-                    'plox', 'should of', 'could of', 'would of', 'must of', 'could care less', 'halo invented',
-                    'oscar mike',
-                    'ramirez', 'nigger', 'nlgger', 'n1gger', 'n|gger', 'faggot', 'fagget', 'faggotry', 'protip',
-                    'brotip', 'tldr', 'tl;dr', 'i am 12', 'im 12', 'i\'m 12', 'you dead', 'you ded', 'u dead', 'u ded',
-                    'do et',
-                    'do eet', 'do eet', 'doo eet', 'du et', 'wut.', 'wat.', 'lol wut', 'lol wat', 'lag']
-
-    if message.channel == yandere:
-        for word in banned_words:
-            if banned_role in message.author.roles:
-                await message.delete()
-            elif word in message.content or word in message.content.lower():
-                await message.channel.send(f'Forcibly removing {message.author.display_name} for using a banned word.')
-                await message.author.add_roles(banned_role)
-                break
     await bot.process_commands(message)
 
 @bot.event
@@ -218,7 +195,8 @@ async def on_raw_reaction_add(reaction, messageid, channelid, member):
             if x.emoji == "⭐":
                 starboardreaction = x
         if message.channel == memes:
-            message.remove_reaction(starboardreaction, member)
+            react_user = message.guild.get_member(member)
+            message.remove_reaction(starboardreaction, react_user)
         if (starboardreaction.count > 6 and message.channel.name != bestof.name\
                 and message.channel.name != worstof.name and match == False and message.channel.name != memes.name):
             # embed message itself
