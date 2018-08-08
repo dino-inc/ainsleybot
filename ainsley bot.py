@@ -217,8 +217,11 @@ async def on_raw_reaction_add(reaction, messageid, channelid, member):
         for x in message.reactions:
             if x.emoji == "⭐":
                 starboardreaction = x
+        if message.channel == memes:
+            message.remove_reaction(starboardreaction, member)
+            return
         if (starboardreaction.count > 6 and message.channel.name != bestof.name\
-                and message.channel.name != worstof.name and match == False):
+                and message.channel.name != worstof.name and match == False and message.channel.name != memes.name):
             # embed message itself
             em = discord.Embed(title=f'⭐ Best Of From {message.channel.name}⭐', description=message.content, colour=0xFFD700)
             em.set_author(name=message.author.display_name, icon_url=message.author.avatar_url)
