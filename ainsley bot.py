@@ -219,7 +219,6 @@ async def on_raw_reaction_add(reaction, messageid, channelid, member):
                 starboardreaction = x
         if message.channel == memes:
             message.remove_reaction(starboardreaction, member)
-            return
         if (starboardreaction.count > 6 and message.channel.name != bestof.name\
                 and message.channel.name != worstof.name and match == False and message.channel.name != memes.name):
             # embed message itself
