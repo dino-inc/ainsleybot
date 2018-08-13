@@ -68,7 +68,7 @@ class RollCall:
                          (member_id)''')
             c.execute('INSERT INTO members VALUES (?)', (id,))
             await ctx.send('Succesfully added **{}**'.format(member.display_name))
-        role = discord.utils.get(ctx.guild.roles, id=478027267944087559)
+        role = discord.utils.get(ctx.guild.roles, id=438492778134110218)
         if role not in member.roles:
                 await member.add_roles(role)
         con.commit()
@@ -85,7 +85,7 @@ class RollCall:
         id = member.id
         c.execute("DELETE FROM members WHERE member_id=(?)", (id,))
         await ctx.send('Successfully removed **{}**'.format(member.display_name))
-        role = discord.utils.get(ctx.guild.roles, id=478027267944087559)
+        role = discord.utils.get(ctx.guild.roles, id=438492778134110218)
         if role in member.roles:
                 await member.remove_roles(role)
         con.commit()
