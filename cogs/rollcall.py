@@ -45,6 +45,8 @@ class RollCall:
 
         if exists(RollCall.ANY):
             user = message.author.id
+            if user == self.bot.id:
+                return
             for favor in RollCall.FAVORS:
                 if exists(favor):
                     self.voting[user] = favor
