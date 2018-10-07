@@ -25,7 +25,7 @@ class RollCall:
         abst = votes[RollCall.NEUTRAL]
         votestatus = "agreed to" if yeas > nays else "denied"
         abststatus = f" with {abst} abstentions" if abst > 0 else ""
-        m = f"The Yeas and Nays are {yeas} - {nays}{abststatus}.  The motion is {votestatus}."
+        m = f"The Yeas and Nays are {yeas} - {nays}{abststatus}. The motion is {votestatus}."
         await sender(m)
         self.voting = {}
         self.bot.remove_event(self.during_call.__name__)
