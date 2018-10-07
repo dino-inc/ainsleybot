@@ -101,13 +101,14 @@ class RollCall:
     async def list(self, ctx):
         con = sqlite3.connect('members.db')
         c = con.cursor()
+        thots = []
         for i in c.execute('SELECT * FROM members'):
-            thot = discord.utils.get(ctx.guild.members, id=i[0])
+            thots.append(discord.utils.get(ctx.guild.members, id=i[0]))
             print(i[0])
-            try:
-                await ctx.send(thot)
-            except:
-                pass
+        try:
+            await ctx.send("\n".join(thots))
+        except:
+            pass
 
     @commands.command()
     async def call(self, ctx, time=None):
