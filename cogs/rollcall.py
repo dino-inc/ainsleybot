@@ -103,12 +103,11 @@ class RollCall:
         c = con.cursor()
         thots = []
         for i in c.execute('SELECT * FROM members'):
-            thots.append(discord.utils.get(ctx.guild.members, id=i[0]))
-            print(i[0])
-        try:
-            await ctx.send("\n".join(thots))
-        except:
-            pass
+            thots.append(discord.utils.get(ctx.guild.members, id=i[0]).name+'#'+discord.utils.get(ctx.guild.members, id=i[0]).discriminator)
+            print(thots)
+
+        await ctx.send("\n".join(thots))
+
 
     @commands.command()
     async def call(self, ctx, time=None):
