@@ -107,8 +107,18 @@ class RollCall:
             print(thots)
 
         await ctx.send("\n".join(thots))
-
-
+    
+    @commands.command()
+    async def ping(self, ctx):
+        role = discord.utils.get(ctx.guild.roles, id=438521521166876692)
+        if role not in ctx.author.roles:
+            await ctx.send('Only the Chamber Speaker can use this commmand')
+            return
+        pingrole = discord.utils.get(ctx.guild.roles, id=438492778134110218)
+        pingrole.mentionable = True
+        await ctx.send(pingrole.mention)
+        pingrole.mentionable = False
+            
     @commands.command()
     async def call(self, ctx, time=None):
         role = discord.utils.get(ctx.guild.roles, id=438521521166876692)
