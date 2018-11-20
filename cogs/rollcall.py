@@ -117,7 +117,7 @@ class RollCall:
         pingrole = discord.utils.get(ctx.guild.roles, id=438492778134110218)
         await pingrole.edit(mentionable = True)
         await ctx.send(pingrole.mention)
-        awaitpingrole.edit(mentionable = False)
+        await pingrole.edit(mentionable = False)
             
     @commands.command()
     async def call(self, ctx, time=None):
