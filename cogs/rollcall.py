@@ -115,9 +115,9 @@ class RollCall:
             await ctx.send('Only the Chamber Speaker can use this commmand')
             return
         pingrole = discord.utils.get(ctx.guild.roles, id=438492778134110218)
-        pingrole.mentionable = True
+        pingrole.edit(mentionable = True)
         await ctx.send(pingrole.mention)
-        pingrole.mentionable = False
+        pingrole.edit(mentionable = False)
             
     @commands.command()
     async def call(self, ctx, time=None):
