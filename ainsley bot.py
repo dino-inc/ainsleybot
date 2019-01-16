@@ -57,7 +57,7 @@ async def on_ready():
     banned_role = discord.utils.get(memeecon.roles, name='banned from stream')
 
 
-initial_extensions = ['cogs.rollcall', 'cogs.owner']
+initial_extensions = ['cogs.owner']
 
 
 if __name__ == '__main__':
