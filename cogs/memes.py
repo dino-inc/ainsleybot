@@ -10,15 +10,17 @@ class Memes:
         self.bot = bot
         botconfig = configparser.ConfigParser()
         botconfig.read('config.ini')
-        global shitposting
-        global memes
-        global bestof
         global counter
-        global worstof
-        global memeecon
         global owner
         counter = 0
         owner = int(botconfig['GLOBAL']['owner_id'])
+
+    async def on_ready(self):
+        global shitposting
+        global memes
+        global bestof
+        global worstof
+        global memeecon
         if botconfig['GLOBAL'].getboolean('use_test_guild'):
             guild_ids = botconfig['Test Server']
         else:
@@ -29,7 +31,6 @@ class Memes:
         memes = memeecon.get_channel(guild_ids['memes_id'])
         worstof = memeecon.get_channel(guild_ids['worst_of_id'])
         bestof = memeecon.get_channel(guild_ids['best_of_id'])
-
     async def on_message(self, message):
         try:
             global shitposting
@@ -89,9 +90,9 @@ class Memes:
         global counter
         global worstof
         match = False
-        reactchannel = bot.get_channel(channelid)
+        reactchannel = self.bot.get_channel(channelid)
         message = await reactchannel.get_message(messageid)
-        if member == bot.user.id:
+        if member == self.bot.user.id:
             return
         voting = memes
         emojitest = reaction.id
