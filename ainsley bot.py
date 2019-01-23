@@ -4,9 +4,34 @@ import aiohttp
 import re
 import sys
 import traceback
+import configparser
+import os
 from utils.events import Event
 from typing import Callable
 
+# config
+botconfig = configparser.ConfigParser()
+try:
+    botconfig.read('config.ini')
+except:
+    botconfig['GLOBAL'] = {'owner_id': '141695444995670017',
+                           'stars': '7',
+                           'downstars': 5,
+                           'upvotes': '33',
+                           'downvotes': '6',
+                           'use_test_guild': 'false'}
+    botconfig['Meme Economy'] = {'guild_id': '231084230808043522',
+                                 'shitposting_id': '300377971234177024',
+                                 'memes_id': '313400507743862794',
+                                 'worst_of_id': '395695465955328000',
+                                 'best_of_id': '300792095688491009'}
+    botconfig['Test Server'] = {'guild_id': '277294377548775425',
+                                'shitposting_id': '396748832932626433',
+                                'memes_id': '396748843397414914',
+                                'worst_of_id': '396748875362336779',
+                                'best_of_id': '396748860174630912'}
+    with open('config.ini', 'w') as configfile:
+        botconfig.write(configfile)
 
 description = '''Reaction bot.'''
 bot = commands.Bot(command_prefix=';', description=description)
@@ -19,26 +44,23 @@ async def on_ready():
     global bestof
     global counter
     global worstof
-    global thotchamber
     global owner
     global memeecon
-    global banned_role
-    global yandere
     print('Logged in as')
     print(bot.user.name, bot.user.id)
     print('------')
     counter = 0
-    owner = 141695444995670017
-    # CHANGE BEFORE PUSH, REFERS TO PERSONAL SERVER
-    guild = 277294377548775425
+    owner = int(botconfig['GLOBAL']['owner_id'])
+    if botconfig['GLOBAL'].getboolean('use_test_guild'):
+        guild_ids = botconfig['Test Server']
+    else:
+        guild_ids = botconfig['Meme Economy']
+    guild = int(guild_ids['guild_id'])
     memeecon = bot.get_guild(guild)
-    shitposting = memeecon.get_channel(300377971234177024)
-    memes = memeecon.get_channel(313400507743862794)
-    worstof = memeecon.get_channel(395695465955328000)
-    bestof = memeecon.get_channel(300792095688491009)
-    thotchamber = memeecon.get_channel(438492624207478784)
-    banned_role = discord.utils.get(memeecon.roles, name='banned from stream')
-
+    shitposting = memeecon.get_channel(guild_ids['shitposting_id'])
+    memes = memeecon.get_channel(guild_ids['memes_id'])
+    worstof = memeecon.get_channel(guild_ids['worst_of_id'])
+    bestof = memeecon.get_channel(guild_ids['best_of_id'])
 
 initial_extensions = ['cogs.owner']
 
@@ -269,6 +291,8 @@ async def check_votes(votearrow):
         cache = open("bestof.txt", "a")
         cache.write(str(votearrow.id) + " ")
         cache.close()
+
+
 
 # ainsleybot
 token = open("token.txt", 'r')
