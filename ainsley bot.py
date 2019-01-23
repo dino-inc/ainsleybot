@@ -8,26 +8,8 @@ from utils.events import Event
 from typing import Callable
 
 
-class BotWEvents(commands.Bot):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.listeners = Event()
-
-    def add_event(self, func: Callable):
-        self.listeners.add_method(func)
-
-    def has_event(self, name: str):
-        return name in self.listeners
-
-    def remove_event(self, name: str):
-        self.listeners.remove_method(name)
-
-    async def call_event(self, fname: str, *args, **kwargs):
-        await self.listeners(fname, *args, **kwargs)
-
-
 description = '''Reaction bot.'''
-bot = BotWEvents(command_prefix=';', description=description)
+bot = commands.Bot(command_prefix=';', description=description)
 
 
 @bot.event
@@ -47,7 +29,8 @@ async def on_ready():
     print('------')
     counter = 0
     owner = 141695444995670017
-    guild = 231084230808043522
+    # CHANGE BEFORE PUSH, REFERS TO PERSONAL SERVER
+    guild = 277294377548775425
     memeecon = bot.get_guild(guild)
     shitposting = memeecon.get_channel(300377971234177024)
     memes = memeecon.get_channel(313400507743862794)
@@ -57,7 +40,7 @@ async def on_ready():
     banned_role = discord.utils.get(memeecon.roles, name='banned from stream')
 
 
-initial_extensions = ['cogs.rollcall', 'cogs.owner']
+initial_extensions = ['cogs.owner']
 
 
 if __name__ == '__main__':
@@ -254,7 +237,7 @@ async def check_votes(votearrow):
 
     for i in votearrow.reactions:
 
-        if str(i.emoji) == ("<:upvote:335141910773628928>") and i.count > 34 and votearrow.channel != bestof:
+        if str(i.emoji) == ("<:upvote:335141910773628928>") and i.count > 32 and votearrow.channel != bestof:
             isstar = True
     if isstar == True:      
         
