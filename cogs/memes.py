@@ -3,6 +3,7 @@ from discord.ext import commands
 import configparser
 import os
 import sys
+import datetime
 
 botconfig = configparser.ConfigParser()
 botconfig.read('config.ini')
@@ -149,14 +150,32 @@ class Memes:
         # starboard
         if str(message.id) in open('starboard.txt').read():
             match = True
+        # checks for the star emoji
         if reaction.emoji.name == '⭐':
             starboardreaction = None
             for x in message.reactions:
                 if x.emoji == "⭐":
                     starboardreaction = x
+            # removes stars in #memes
             if message.channel == memes:
-                react_user = message.guild.get_member(member)
-                message.remove_reaction(starboardreaction, react_user)
+                react_user = message.guild.get_member(member.id)
+                await message.remove_reaction(starboardreaction, react_user)
+                return
+            # removes star if author is reacting user
+            # if message.author == message.guild.get_member(member.id):
+            #     react_user = message.guild.get_member(member.id)
+            #     await message.remove_reaction(starboardreaction, react_user)
+            #     return
+            # checks if message is more than 1 week old
+            message_age = datetime.datetime.now() - message.created_at
+            if message_age.days > 7:
+                print(f"Prevented a message from {message_age} from being starred.")
+                for reaction_emoji in message.reactions:
+                    if reaction_emoji.emoji == '⭐':
+                        async for users in reaction_emoji.users():
+                            await message.remove_reaction(reaction_emoji, users)
+                return
+            # checks all of the things to see if it meets best of criteria
             if (starboardreaction.count > (int(botconfig['GLOBAL']['stars']) - 1)
                     and message.channel.name != bestof.name
                     and message.channel.name != worstof.name
@@ -228,10 +247,11 @@ async def check_votes(votearrow, positivevotedifference):
     if isstar == True:
 
         # embed message itself
-        em = discord.Embed(title='👌Good meme👌', description='This meme is a certified good meme.', colour=0x00FF00,
-                           thumbnail= votearrow.message.created_at)
+        em = discord.Embed(title='A good meme has been located!', colour=0x00FF00,
+                           timestamp= votearrow.created_at)
         em.set_author(name=votearrow.author, icon_url=votearrow.author.avatar_url)
-        # em.set_footer(text="All hail dino_inc, the creator of this bot. Feel free to give feedback by pinging him.")
+        # em.set_thumbnail(url=votearrow.author.avatar_url)
+        # em.set_footer(text=f"[Jump to meme]("+votearrow.jump_url+") ")
         # em.set_footer(text='Need context? Click here: '+votearrow.message.jump_url)
         # embed url images
         global breakstar
