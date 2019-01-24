@@ -21,6 +21,7 @@ class Memes:
         global bestof
         global worstof
         global memeecon
+        global modlog
         if botconfig['GLOBAL'].getboolean('use_test_guild'):
             guild_ids = botconfig['Test Server']
         else:
@@ -31,6 +32,7 @@ class Memes:
         memes = memeecon.get_channel(int(guild_ids['memes_id']))
         worstof = memeecon.get_channel(int(guild_ids['worst_of_id']))
         bestof = memeecon.get_channel(int(guild_ids['best_of_id']))
+        modlog = memeecon.get_channel(int(guild_ids['mod_log_id']))
     async def on_message(self, message):
         try:
             # global shitposting
@@ -42,6 +44,7 @@ class Memes:
                 test = message.guild.id
             except:
                 return
+
             # shitposters reaction code
             '''
             if message.channel == shitposting:
@@ -64,18 +67,11 @@ class Memes:
                         await message.add_reaction(botconfig['GLOBAL']['downvote_emoji'])
 
                     else:
-                        # try:
-                        #     em = discord.Embed(title='Deleted post',
-                        #                        description='Please do not send any text in #memes.'
-                        #                                    ' Your post, omitting any image, was: '
-                        #                                    '\n' + message.content + '\n If you believe'
-                        #                                    ' this to be a mistake, ping dino_inc i'
-                        #                                    ' #mod_feedback.', colour=0xFF0000)
-                        #     em.set_author(name=message.author, icon_url=message.author.avatar_url)
-                        #     await message.send(embed=em)
-                        # except:
-                        #     pass
                         await message.delete()
+                        await modlog.send(embed = await mod_log_format("Text in #memes Deleted",
+                                                               f'Posted by {message.author}({message.author.id}) at {message.created_at}.',
+                                                               0xFF0000,
+                                                               datetime.datetime.now()))
                         print("Deleted text by " + str(message.author) + " in #memes.")
                 else:
                     await message.add_reaction(botconfig['GLOBAL']['upvote_emoji'])
@@ -115,23 +111,47 @@ class Memes:
                 and emojitest == (int(botconfig['GLOBAL']['downvote_emoji_id'])):
             await message.delete()
             print("deleted post for negative votes by " + str(message.author))
+            await modlog.send(embed = await mod_log_format("Terrible Meme Deleted",
+                                                   f'Posted by {message.author}({message.author.id}) at {message.created_at}.',
+                                                   0xFF0000,
+                                                   datetime.datetime.now()))
+
         if message.channel == voting and emojitest == (int(botconfig['GLOBAL']['upvote_emoji_id'])):
             await check_votes(message, positivevotedifference)
+
         # worst of
         if str(message.id) in open('worstof.txt').read():
             match = True
-        if reaction.emoji.id == 379319474639208458:
+        if reaction.emoji.id == 339268907082711051:
             shitpostreaction = None
             for x in message.reactions:
-                if str(x.emoji) == "<:shitpost:379319474639208458>":
+                if str(x.emoji) == "<:glaredik:339268907082711051>":
                     shitpostreaction = x
+            #makes sure posts aren't ancient
+            message_age = datetime.datetime.now() - message.created_at
+            if message_age.days > 7:
+                print(f"Prevented a message from {message_age} from being starred.")
+                for reaction_emoji in message.reactions:
+                    if reaction.emoji.id == 339268907082711051:
+                        async for users in reaction_emoji.users():
+                            await message.remove_reaction(reaction_emoji, users)
+                return
+            # removes shitpost star if author is reacting user
+            if message.author == message.guild.get_member(member.id):
+                react_user = message.guild.get_member(member.id)
+                await message.remove_reaction(shitpostreaction, react_user)
+                return
             if (shitpostreaction.count > (
                     int(botconfig['GLOBAL']['downstars']) - 1) and message.channel.name != bestof.name \
                     and message.channel.name != worstof.name and message.channel.name != memes.name and match == False):
                 # embed message itself
-                em = discord.Embed(title=f'👺 Shitpost From {message.channel.name} 👺', description=message.content,
-                                   colour=0xFFD700)
-                em.set_author(name=message.author.display_name, icon_url=message.author.avatar_url)
+                em = discord.Embed(description=message.content + '\n\n[Jump to post](' + message.jump_url + ')',
+                                   colour=0xFF0000, timestamp=message.created_at)
+                em.set_author(name='Worst of by: ' + message.author.display_name,
+                              icon_url='http://rottenrat.com/wp-content/uploads/2011/01/Marty-Rathbun-anti-sign.jpg',
+                              url=message.jump_url)
+                em.set_thumbnail(url=message.author.avatar_url)
+                em.set_footer(text=f"Posted in #{message.channel.name}")
                 # embed url images
                 try:
                     attach = message.attachments
@@ -146,8 +166,13 @@ class Memes:
                 # sending actual embed
                 print("Terrible worst of post by " + str(message.author) + ".")
                 await worstof.send(embed=em)
-        match = False
+                await modlog.send(embed = await mod_log_format("Message Sent To Worst Of",
+                                                       f'Posted by {message.author}({message.author.id}) at {message.created_at}.',
+                                                       0xFF0000,
+                                                       datetime.datetime.now()))
+
         # starboard
+        match = False
         if str(message.id) in open('starboard.txt').read():
             match = True
         # checks for the star emoji
@@ -162,10 +187,10 @@ class Memes:
                 await message.remove_reaction(starboardreaction, react_user)
                 return
             # removes star if author is reacting user
-            # if message.author == message.guild.get_member(member.id):
-            #     react_user = message.guild.get_member(member.id)
-            #     await message.remove_reaction(starboardreaction, react_user)
-            #     return
+            if message.author == message.guild.get_member(member.id):
+                react_user = message.guild.get_member(member.id)
+                await message.remove_reaction(starboardreaction, react_user)
+                return
             # checks if message is more than 1 week old
             message_age = datetime.datetime.now() - message.created_at
             if message_age.days > 7:
@@ -204,6 +229,10 @@ class Memes:
                 # sending actual embed
                 print("Best of post by " + str(message.author) + ".")
                 await bestof.send(embed=em)
+                await modlog.send(embed = await mod_log_format("Message Starred",
+                                                       f'Posted by {message.author}({message.author.id}) at {message.created_at}.',
+                                                       0xFFD700,
+                                                       datetime.datetime.now()))
 
 def get_filename_from_cd(cd):
     """
@@ -223,6 +252,11 @@ async def fetch_img(session, url):
       assert response.status == 200
       return await response.read()
 
+async def mod_log_format(event_name, event_message, color, time):
+    em = discord.Embed(description=event_message,
+                       colour=color,
+                       title=event_name)
+    return em
 
 async def check_votes(votearrow, positivevotedifference):
     global shitposting
@@ -273,6 +307,10 @@ async def check_votes(votearrow, positivevotedifference):
         # sending actual embed
         await bestof.send(embed=em)
         print("Sent a good meme to the channel in the sky, by " + str(votearrow.author))
+        await modlog.send(embed = await mod_log_format("Message Upvoted into #best_of",
+                                               f'Posted by {votearrow.author}({votearrow.author.id}) at {votearrow.created_at}.',
+                                               0x00FF00,
+                                               datetime.datetime.now()))
         cache = open("bestof.txt", "a")
         cache.write(str(votearrow.id) + " ")
         cache.close()
