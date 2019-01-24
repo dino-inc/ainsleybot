@@ -122,17 +122,17 @@ class Memes:
         # worst of
         if str(message.id) in open('worstof.txt').read():
             match = True
-        if reaction.emoji.id == 339268907082711051:
+        if reaction.emoji.id == 379319474639208458:
             shitpostreaction = None
             for x in message.reactions:
-                if str(x.emoji) == "<:glaredik:339268907082711051>":
+                if str(x.emoji) == "<:shitpost:379319474639208458>":
                     shitpostreaction = x
             #makes sure posts aren't ancient
             message_age = datetime.datetime.now() - message.created_at
             if message_age.days > 7:
                 print(f"Prevented a message from {message_age} from being starred.")
                 for reaction_emoji in message.reactions:
-                    if reaction.emoji.id == 339268907082711051:
+                    if reaction.emoji.id == 379319474639208458:
                         async for users in reaction_emoji.users():
                             await message.remove_reaction(reaction_emoji, users)
                 return
