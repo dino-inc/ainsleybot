@@ -33,7 +33,6 @@ if not os.path.exists('config.ini'):
                                 'best_of_id': '396748860174630912'}
     with open('config.ini', 'w') as configfile:
         botconfig.write(configfile)
-print('Loading configuration file.')
 botconfig.read('config.ini')
 
 description = '''Reaction bot.'''
