@@ -68,8 +68,8 @@ class Memes:
                         #                        description='Please do not send any text in #memes.'
                         #                                    ' Your post, omitting any image, was: '
                         #                                    '\n' + message.content + '\n If you believe'
-                        #                                                             ' this to be a mistake, ping dino_inc i'
-                        #                                                             ' #mod_feedback.', colour=0xFF0000)
+                        #                                    ' this to be a mistake, ping dino_inc i'
+                        #                                    ' #mod_feedback.', colour=0xFF0000)
                         #     em.set_author(name=message.author, icon_url=message.author.avatar_url)
                         #     await message.send(embed=em)
                         # except:
@@ -157,13 +157,20 @@ class Memes:
             if message.channel == memes:
                 react_user = message.guild.get_member(member)
                 message.remove_reaction(starboardreaction, react_user)
-            if (starboardreaction.count > (
-                    int(botconfig['GLOBAL']['stars']) - 1) and message.channel.name != bestof.name\
-                    and message.channel.name != worstof.name and match == False and message.channel.name != memes.name):
+            if (starboardreaction.count > (int(botconfig['GLOBAL']['stars']) - 1)
+                    and message.channel.name != bestof.name
+                    and message.channel.name != worstof.name
+                    and match == False
+                    and message.channel.name != memes.name):
                 # embed message itself
-                em = discord.Embed(title=f'⭐ Best Of From {message.channel.name}⭐', description=message.content,
-                                   colour=0xFFD700)
-                em.set_author(name=message.author.display_name, icon_url=message.author.avatar_url)
+                em = discord.Embed(description=message.content+'\n\n[Jump to post]('+message.jump_url+')',
+                                   colour=0xFFD700, timestamp=message.created_at)
+                em.set_author(name='Best of by: '+message.author.display_name,
+                              icon_url='https://upload.wikimedia.org/wikipedia/commons/f/f3/Star_Emoji.png',
+                              url = message.jump_url)
+                em.set_thumbnail(url=message.author.avatar_url)
+                em.set_footer(text=f"Posted in #{message.channel.name}")
+                # em.add_field(name= "[Context]("+message.jump_url+")", value='whatever I guess')
                 # embed url images
                 try:
                     attach = message.attachments
@@ -221,11 +228,11 @@ async def check_votes(votearrow, positivevotedifference):
     if isstar == True:
 
         # embed message itself
-        em = discord.Embed(title='👌Good meme👌', description='This meme is a certified good meme.', colour=0x00FF00)
+        em = discord.Embed(title='👌Good meme👌', description='This meme is a certified good meme.', colour=0x00FF00,
+                           thumbnail= votearrow.message.created_at)
         em.set_author(name=votearrow.author, icon_url=votearrow.author.avatar_url)
         # em.set_footer(text="All hail dino_inc, the creator of this bot. Feel free to give feedback by pinging him.")
-        em.set_footer(text='Need context? Click here: '+votearrow.message.jump_url)
-        print(votearrow.message.jump_url)
+        # em.set_footer(text='Need context? Click here: '+votearrow.message.jump_url)
         # embed url images
         global breakstar
         breakstar = True
