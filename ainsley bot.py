@@ -25,12 +25,14 @@ if not os.path.exists('config.ini'):
                                  'shitposting_id': '300377971234177024',
                                  'memes_id': '313400507743862794',
                                  'worst_of_id': '395695465955328000',
-                                 'best_of_id': '300792095688491009'}
+                                 'best_of_id': '300792095688491009',
+                                 'mod_log_id': '318907499753242634'}
     botconfig['Test Server'] = {'guild_id': '277294377548775425',
                                 'shitposting_id': '396748832932626433',
                                 'memes_id': '396748843397414914',
                                 'worst_of_id': '396748875362336779',
-                                'best_of_id': '396748860174630912'}
+                                'best_of_id': '396748860174630912',
+                                'mod_log_id': '538088043245207563'}
     with open('config.ini', 'w') as configfile:
         botconfig.write(configfile)
 botconfig.read('config.ini')
