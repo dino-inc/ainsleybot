@@ -4,19 +4,18 @@ import configparser
 import os
 import sys
 
-
+botconfig = configparser.ConfigParser()
+botconfig.read('config.ini')
 class Memes:
     def __init__(self, bot):
         self.bot = bot
-        botconfig = configparser.ConfigParser()
-        botconfig.read('config.ini')
         global counter
         global owner
         counter = 0
         owner = int(botconfig['GLOBAL']['owner_id'])
 
     async def on_ready(self):
-        global shitposting
+        # global shitposting
         global memes
         global bestof
         global worstof
@@ -27,13 +26,13 @@ class Memes:
             guild_ids = botconfig['Meme Economy']
         guild = int(guild_ids['guild_id'])
         memeecon = self.bot.get_guild(guild)
-        shitposting = memeecon.get_channel(guild_ids['shitposting_id'])
-        memes = memeecon.get_channel(guild_ids['memes_id'])
-        worstof = memeecon.get_channel(guild_ids['worst_of_id'])
-        bestof = memeecon.get_channel(guild_ids['best_of_id'])
+        # shitposting = memeecon.get_channel(int(guild_ids['shitposting_id']))
+        memes = memeecon.get_channel(int(guild_ids['memes_id']))
+        worstof = memeecon.get_channel(int(guild_ids['worst_of_id']))
+        bestof = memeecon.get_channel(int(guild_ids['best_of_id']))
     async def on_message(self, message):
         try:
-            global shitposting
+            # global shitposting
             global memes
             global bestof
             global counter
@@ -64,17 +63,17 @@ class Memes:
                         await message.add_reaction(botconfig['GLOBAL']['downvote_emoji'])
 
                     else:
-                        try:
-                            em = discord.Embed(title='Deleted post',
-                                               description='Please do not send any text in #memes.'
-                                                           ' Your post, omitting any image, was: '
-                                                           '\n' + message.content + '\n If you believe'
-                                                                                    ' this to be a mistake, ping dino_inc i'
-                                                                                    ' #mod_feedback.', colour=0xFF0000)
-                            em.set_author(name=message.author, icon_url=message.author.avatar_url)
-                            # await message.send(embed=em)
-                        except:
-                            pass
+                        # try:
+                        #     em = discord.Embed(title='Deleted post',
+                        #                        description='Please do not send any text in #memes.'
+                        #                                    ' Your post, omitting any image, was: '
+                        #                                    '\n' + message.content + '\n If you believe'
+                        #                                                             ' this to be a mistake, ping dino_inc i'
+                        #                                                             ' #mod_feedback.', colour=0xFF0000)
+                        #     em.set_author(name=message.author, icon_url=message.author.avatar_url)
+                        #     await message.send(embed=em)
+                        # except:
+                        #     pass
                         await message.delete()
                         print("Deleted text by " + str(message.author) + " in #memes.")
                 else:
@@ -83,19 +82,20 @@ class Memes:
         except:
             pass
 
-    async def on_raw_reaction_add(reaction, messageid, channelid, member):
-        global shitposting
+    async def on_raw_reaction_add(self, reaction):
+        # global shitposting
         global memes
         global bestof
         global counter
         global worstof
         match = False
-        reactchannel = self.bot.get_channel(channelid)
-        message = await reactchannel.get_message(messageid)
+        reactchannel = memeecon.get_channel(reaction.channel_id)
+        message = await reactchannel.get_message(reaction.message_id)
+        member = memeecon.get_member(reaction.user_id)
         if member == self.bot.user.id:
             return
         voting = memes
-        emojitest = reaction.id
+        emojitest = reaction.emoji.id
         negativevotedifference = 0
         positivevotedifference = 0
         if message.channel == voting:
@@ -106,6 +106,7 @@ class Memes:
                     downvote = x
             try:
                 negativevotedifference = downvote.count - upvote.count
+                positivevotedifference = upvote.count - downvote.count
             except:
                 await message.add_reaction(botconfig['GLOBAL']['upvote_emoji'])
                 await message.add_reaction(botconfig['GLOBAL']['downvote_emoji'])
@@ -114,11 +115,11 @@ class Memes:
             await message.delete()
             print("deleted post for negative votes by " + str(message.author))
         if message.channel == voting and emojitest == (int(botconfig['GLOBAL']['upvote_emoji_id'])):
-            await check_votes(message)
+            await check_votes(message, positivevotedifference)
         # worst of
         if str(message.id) in open('worstof.txt').read():
             match = True
-        if reaction.id == 379319474639208458:
+        if reaction.emoji.id == 379319474639208458:
             shitpostreaction = None
             for x in message.reactions:
                 if str(x.emoji) == "<:shitpost:379319474639208458>":
@@ -148,7 +149,7 @@ class Memes:
         # starboard
         if str(message.id) in open('starboard.txt').read():
             match = True
-        if reaction.name == '⭐':
+        if reaction.emoji.name == '⭐':
             starboardreaction = None
             for x in message.reactions:
                 if x.emoji == "⭐":
@@ -197,7 +198,7 @@ async def fetch_img(session, url):
       return await response.read()
 
 
-async def check_votes(votearrow):
+async def check_votes(votearrow, positivevotedifference):
     global shitposting
     global memes
     global bestof
@@ -214,16 +215,17 @@ async def check_votes(votearrow):
 
     for i in votearrow.reactions:
 
-        if str(i.emoji) == ("<" + botconfig['GLOBAL']['upvote_emoji'] + ">") and i.count > (
+        if str(i.emoji) == ("<" + botconfig['GLOBAL']['upvote_emoji'] + ">") and positivevotedifference > (
                 int(botconfig['GLOBAL']['upvotes']) - 1) and votearrow.channel != bestof:
             isstar = True
     if isstar == True:
 
         # embed message itself
-        em = discord.Embed(title='👌Good meme👌', description='This meme has received enough upvotes'
-                                                              ' to become certified™ dank.', colour=0x00FF00)
+        em = discord.Embed(title='👌Good meme👌', description='This meme is a certified good meme.', colour=0x00FF00)
         em.set_author(name=votearrow.author, icon_url=votearrow.author.avatar_url)
-        em.set_footer(text="All hail dino_inc, the creator of this bot. Feel free to give feedback by pinging him.")
+        # em.set_footer(text="All hail dino_inc, the creator of this bot. Feel free to give feedback by pinging him.")
+        em.set_footer(text='Need context? Click here: '+votearrow.message.jump_url)
+        print(votearrow.message.jump_url)
         # embed url images
         global breakstar
         breakstar = True
