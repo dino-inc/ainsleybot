@@ -2,3 +2,4 @@ token.txt
 cogs/__pycache__/
 utils/__pycache__/
 .idea
+config.ini
