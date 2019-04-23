@@ -91,9 +91,6 @@ class Memes:
         member = memeecon.get_member(reaction.user_id)
         if member == self.bot.user.id:
             return
-        if member == message.author:
-            await reaction.remove(member)
-            return
         voting = memes
         emojitest = reaction.emoji.id
         negativevotedifference = 0
