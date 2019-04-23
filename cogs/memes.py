@@ -89,7 +89,10 @@ class Memes:
         reactchannel = memeecon.get_channel(reaction.channel_id)
         message = await reactchannel.get_message(reaction.message_id)
         member = memeecon.get_member(reaction.user_id)
-        if member == self.bot.user.id or member == message.author:
+        if member == self.bot.user.id:
+            return
+        if member == message.author:
+            await reaction.remove(member)
             return
         voting = memes
         emojitest = reaction.emoji.id
