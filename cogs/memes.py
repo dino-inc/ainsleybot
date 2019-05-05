@@ -7,7 +7,7 @@ import datetime
 
 botconfig = configparser.ConfigParser()
 botconfig.read('config.ini')
-class Memes:
+class Memes(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         global counter
@@ -15,6 +15,7 @@ class Memes:
         counter = 0
         owner = int(botconfig['GLOBAL']['owner_id'])
 
+    @commands.Cog.listener()
     async def on_ready(self):
         # global shitposting
         global memes
@@ -33,6 +34,8 @@ class Memes:
         worstof = memeecon.get_channel(int(guild_ids['worst_of_id']))
         bestof = memeecon.get_channel(int(guild_ids['best_of_id']))
         modlog = memeecon.get_channel(int(guild_ids['mod_log_id']))
+
+    @commands.Cog.listener()
     async def on_message(self, message):
         try:
             # global shitposting
@@ -79,6 +82,7 @@ class Memes:
         except:
             pass
 
+    @commands.Cog.listener()
     async def on_raw_reaction_add(self, reaction):
         # global shitposting
         global memes
@@ -96,6 +100,9 @@ class Memes:
         negativevotedifference = 0
         positivevotedifference = 0
         if message.channel == voting:
+            if member == message.author:
+                await message.remove_reaction(reaction.emoji, message.author)
+                return
             for x in message.reactions:
                 if str(x.emoji) == "<" + botconfig['GLOBAL']['upvote_emoji'] + ">":
                     upvote = x
