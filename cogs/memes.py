@@ -138,10 +138,10 @@ class Memes(commands.Cog):
             message_age = datetime.datetime.now() - message.created_at
             if message_age.days > 7:
                 print(f"Prevented a message from {message_age} from being starred.")
-                for reaction_emoji in message.reactions:
-                    if reaction.emoji.id == 379319474639208458:
-                        async for users in reaction_emoji.users():
-                            await message.remove_reaction(reaction_emoji, users)
+                #for reaction_emoji in message.reactions:
+                    #if reaction.emoji.id == 379319474639208458:
+                        #async for users in reaction_emoji.users():
+                            #await message.remove_reaction(reaction_emoji, users)
                 return
             # removes shitpost star if author is reacting user
             if message.author == message.guild.get_member(member.id):
@@ -202,10 +202,10 @@ class Memes(commands.Cog):
             message_age = datetime.datetime.now() - message.created_at
             if message_age.days > 7:
                 print(f"Prevented a message from {message_age} from being starred.")
-                for reaction_emoji in message.reactions:
-                    if reaction_emoji.emoji == '⭐':
-                        async for users in reaction_emoji.users():
-                            await message.remove_reaction(reaction_emoji, users)
+                #for reaction_emoji in message.reactions:
+                    #if reaction_emoji.emoji == '⭐':
+                        #async for users in reaction_emoji.users():
+                            #await message.remove_reaction(reaction_emoji, users)
                 return
             # checks all of the things to see if it meets best of criteria
             if (starboardreaction.count > (int(botconfig['GLOBAL']['stars']) - 1)
