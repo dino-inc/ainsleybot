@@ -3,7 +3,7 @@ from discord.ext import commands
 
 # mostly not my code, stolen from cogs example because lazy
 
-class OwnerCog:
+class OwnerCog(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
