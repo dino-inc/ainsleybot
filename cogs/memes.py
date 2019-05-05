@@ -91,7 +91,7 @@ class Memes(commands.Cog):
         global worstof
         match = False
         reactchannel = memeecon.get_channel(reaction.channel_id)
-        message = await reactchannel.get_message(reaction.message_id)
+        message = await reactchannel.fetch_message(reaction.message_id)
         member = memeecon.get_member(reaction.user_id)
         if member == self.bot.user.id:
             return
