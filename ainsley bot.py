@@ -55,8 +55,7 @@ async def on_ready():
         print('Loaded Meme Economy Server configuration.')
         guild_ids = botconfig['Meme Economy']
 
-
-initial_extensions = ['cogs.owner', 'cogs.memes']
+initial_extensions = ['cogs.memes']
 
 
 if __name__ == '__main__':

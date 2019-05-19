@@ -99,9 +99,11 @@ class Memes(commands.Cog):
         emojitest = reaction.emoji.id
         negativevotedifference = 0
         positivevotedifference = 0
+
+        #Check if reactions in #memes
         if message.channel == voting:
-            if member == message.author:
-                await message.remove_reaction(reaction.emoji, message.author)
+            if member == message.author or str(member.id) in open('blocked.txt').read():
+                await message.remove_reaction(reaction.emoji, member)
                 return
             for x in message.reactions:
                 if str(x.emoji) == "<" + botconfig['GLOBAL']['upvote_emoji'] + ">":
