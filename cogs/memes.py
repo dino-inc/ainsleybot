@@ -281,6 +281,12 @@ async def check_votes(votearrow, positivevotedifference):
     if match == True:
         return
     isstar = False
+    
+    #checking if it's an old meme
+    message_age = datetime.datetime.now() - votearrow.created_at
+            if message_age.days > 14:
+                print(f"Prevented a message from {message_age} from being starred.")
+                return
 
     for i in votearrow.reactions:
 
