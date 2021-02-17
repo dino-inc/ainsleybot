@@ -13,9 +13,9 @@ if not os.path.exists('config.ini'):
     print("No config file found, regenerating config.ini.")
     botconfig['GLOBAL'] = {'owner_id': '141695444995670017',
                            'stars': '7',
-                           'downstars': 5,
+                           'downstars': '5',
                            'upvotes': '33',
-                           'downvotes': '6',
+                           'downvotes': '5',
                            'upvote_emoji': ':upvote:335141910773628928',
                            'downvote_emoji': ':downvote:335141916989456384',
                            'upvote_emoji_id': '335141910773628928',

@@ -48,20 +48,6 @@ class Memes(commands.Cog):
             except:
                 return
 
-            # shitposters reaction code
-            '''
-            if message.channel == shitposting:
-                ainsleybot = ['🇦', '🇮', '🇳', '🇸', '🇱', '🇪', '🇾']
-                if message.guild.id == 231084230808043522:
-                    ainsleybot = [':spicyoil:331582837025406976', ':dab:310682824749350913'] + ainsleybot
-                else:
-                    ainsleybot = ['🇸', '🇸'] + ainsleybot
-                if counter < len(ainsleybot) - 1:
-                    counter += 1
-                else:
-                    counter = 0
-                await message.add_reaction(ainsleybot[counter])
-    '''
             if message.channel == memes:
                 if message.content != "":
                     if message.content.startswith("http") and "/" in message.content and "." in message.content and \
@@ -163,8 +149,7 @@ class Memes(commands.Cog):
                 em.set_footer(text=f"Posted in #{message.channel.name}")
                 # embed url images
                 try:
-                    attach = message.attachments
-                    em.set_image(url=attach[0].url)
+                    em = await(handle_image_embed(em, message))
                 except:
                     pass
                 # writing message id to worstof.txt in order to check for dupes
@@ -226,8 +211,7 @@ class Memes(commands.Cog):
                 # em.add_field(name= "[Context]("+message.jump_url+")", value='whatever I guess')
                 # embed url images
                 try:
-                    attach = message.attachments
-                    em.set_image(url=attach[0].url)
+                    em = await(handle_image_embed(em, message))
                 except:
                     pass
                 # writing message id to starboard.txt in order to check for dupes
@@ -313,7 +297,7 @@ async def check_votes(votearrow, positivevotedifference):
             pass
         try:
             attach = votearrow.attachments
-            em.set_image(url=attach[0].url)
+            em = await(handle_image_embed(em, votearrow.message))
             breakstar = False
         except:
             pass
@@ -329,6 +313,26 @@ async def check_votes(votearrow, positivevotedifference):
         cache = open("bestof.txt", "a")
         cache.write(str(votearrow.id) + " ")
         cache.close()
+
+async def handle_image_embed(em, message):
+    if len(message.embeds) > 0:
+        em.set_image(url=message.embeds[0].url)
+    if len(message.attachments) > 0:
+        attach_list = ""
+        count = 0
+        embed_type = ""
+        vid_embeddables = (".mp4", ".webm")
+        aud_embeddables = (".wav", ".ogg", ".mp3")
+        for atta in message.attachments:
+            count += 1
+            if atta.url.endswith(vid_embeddables):
+                embed_type = "Video"
+            if atta.url.endswith(aud_embeddables):
+                embed_type = "Audio"
+            attach_list += f"[{embed_type} Link {count}]({atta.url})\n"
+        em.add_field(name="\u200b", value=f"{attach_list}", inline=True)
+        em.set_image(url=message.attachments[0].url)
+    return em
 
 def setup(bot):
     bot.add_cog(Memes(bot))
