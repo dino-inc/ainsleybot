@@ -38,7 +38,8 @@ if not os.path.exists('config.ini'):
 botconfig.read('config.ini')
 
 description = '''Reaction bot.'''
-bot = commands.Bot(command_prefix=';', description=description)
+intents = discord.Intents.all()
+bot = commands.Bot(command_prefix=';', description=description, guild_subscriptions=True, intents=intents)
 
 
 @bot.event

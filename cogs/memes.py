@@ -88,9 +88,9 @@ class Memes(commands.Cog):
 
         #Check if reactions in #memes
         if message.channel == voting:
-            if member == message.author or str(member.id) in open('blocked.txt').read():
-                await message.remove_reaction(reaction.emoji, member)
-                return
+            #if member == message.author or str(member.id) in open('blocked.txt').read():
+                #await message.remove_reaction(reaction.emoji, member)
+                #return
             for x in message.reactions:
                 if str(x.emoji) == "<" + botconfig['GLOBAL']['upvote_emoji'] + ">":
                     upvote = x
@@ -104,17 +104,23 @@ class Memes(commands.Cog):
                 await message.add_reaction(botconfig['GLOBAL']['downvote_emoji'])
         if message.channel == voting and negativevotedifference > (int(botconfig['GLOBAL']['downvotes']) - 1) \
                 and emojitest == (int(botconfig['GLOBAL']['downvote_emoji_id'])):
-            await message.delete()
+            # checking if it's an old meme
+            message_age = datetime.datetime.now() - message.created_at
+            if message_age.days > 2:
+                print(f"Prevented a message from {message_age} from being deleted.")
+                return
+
             print("deleted post for negative votes by " + str(message.author))
             em = await mod_log_format("Terrible Meme Deleted",
                                          f'Posted by {message.author}({message.author.id}) at {message.created_at}.',
                                          0xFF0000,
                                          datetime.datetime.now())
-            em = await log_reaction_users(em, reaction)
-            await modlog.send(em)
+            em = await log_reaction_users(em, downvote)
+            await modlog.send(embed=em)
+            await message.delete()
 
         if message.channel == voting and emojitest == (int(botconfig['GLOBAL']['upvote_emoji_id'])):
-            await check_votes(message, positivevotedifference)
+            await check_votes(message, positivevotedifference, upvote)
 
         # worst of
         if str(message.id) in open('worstof.txt').read():
@@ -167,8 +173,8 @@ class Memes(commands.Cog):
                                              f'Posted by {message.author}({message.author.id}) at {message.created_at}.',
                                              0xFF0000,
                                              datetime.datetime.now())
-                em = await log_reaction_users(em, reaction)
-                await modlog.send(em)
+                em = await log_reaction_users(em, shitpostreaction)
+                await modlog.send(embed=em)
 
         # starboard
         match = False
@@ -231,7 +237,7 @@ class Memes(commands.Cog):
                                              f'Posted by {message.author}({message.author.id}) at {message.created_at}.',
                                              0xFFD700,
                                              datetime.datetime.now())
-                em = await log_reaction_users(em, reaction)
+                em = await log_reaction_users(em, starboardreaction)
                 await modlog.send(embed=em)
 
 def get_filename_from_cd(cd):
@@ -258,7 +264,7 @@ async def mod_log_format(event_name, event_message, color, time):
                        title=event_name)
     return em
 
-async def check_votes(votearrow, positivevotedifference):
+async def check_votes(votearrow, positivevotedifference, reaction):
     global shitposting
     global memes
     global bestof
@@ -284,6 +290,7 @@ async def check_votes(votearrow, positivevotedifference):
         if str(i.emoji) == ("<" + botconfig['GLOBAL']['upvote_emoji'] + ">") and positivevotedifference > (
                 int(botconfig['GLOBAL']['upvotes']) - 1) and votearrow.channel != bestof:
             isstar = True
+
     if isstar == True:
 
         # embed message itself
@@ -302,9 +309,10 @@ async def check_votes(votearrow, positivevotedifference):
                 breakstar = False
         except:
             pass
+
         try:
             attach = votearrow.attachments
-            em = await(handle_image_embed(em, votearrow.message))
+            em = await(handle_image_embed(em, votearrow))
             breakstar = False
         except:
             pass
@@ -313,10 +321,12 @@ async def check_votes(votearrow, positivevotedifference):
         # sending actual embed
         await bestof.send(embed=em)
         print("Sent a good meme to the channel in the sky, by " + str(votearrow.author))
-        await modlog.send(embed = await mod_log_format("Message Upvoted into #best_of",
+        em = await mod_log_format("Message Upvoted into #best_of",
                                                f'Posted by {votearrow.author}({votearrow.author.id}) at {votearrow.created_at}.',
                                                0x00FF00,
-                                               datetime.datetime.now()))
+                                               datetime.datetime.now())
+        em = await log_reaction_users(em, reaction)
+        await modlog.send(embed=em)
         cache = open("bestof.txt", "a")
         cache.write(str(votearrow.id) + " ")
         cache.close()
