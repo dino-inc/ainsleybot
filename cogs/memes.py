@@ -106,10 +106,12 @@ class Memes(commands.Cog):
                 and emojitest == (int(botconfig['GLOBAL']['downvote_emoji_id'])):
             await message.delete()
             print("deleted post for negative votes by " + str(message.author))
-            await modlog.send(embed = await mod_log_format("Terrible Meme Deleted",
-                                                   f'Posted by {message.author}({message.author.id}) at {message.created_at}.',
-                                                   0xFF0000,
-                                                   datetime.datetime.now()))
+            em = await mod_log_format("Terrible Meme Deleted",
+                                         f'Posted by {message.author}({message.author.id}) at {message.created_at}.',
+                                         0xFF0000,
+                                         datetime.datetime.now())
+            em = await log_reaction_users(em, reaction)
+            await modlog.send(em)
 
         if message.channel == voting and emojitest == (int(botconfig['GLOBAL']['upvote_emoji_id'])):
             await check_votes(message, positivevotedifference)
@@ -160,10 +162,13 @@ class Memes(commands.Cog):
                 # sending actual embed
                 print("Terrible worst of post by " + str(message.author) + ".")
                 await worstof.send(embed=em)
-                await modlog.send(embed = await mod_log_format("Message Sent To Worst Of",
-                                                       f'Posted by {message.author}({message.author.id}) at {message.created_at}.',
-                                                       0xFF0000,
-                                                       datetime.datetime.now()))
+
+                em = await mod_log_format("Message Sent To Worst Of",
+                                             f'Posted by {message.author}({message.author.id}) at {message.created_at}.',
+                                             0xFF0000,
+                                             datetime.datetime.now())
+                em = await log_reaction_users(em, reaction)
+                await modlog.send(em)
 
         # starboard
         match = False
@@ -222,10 +227,12 @@ class Memes(commands.Cog):
                 # sending actual embed
                 print("Best of post by " + str(message.author) + ".")
                 await bestof.send(embed=em)
-                await modlog.send(embed = await mod_log_format("Message Starred",
-                                                       f'Posted by {message.author}({message.author.id}) at {message.created_at}.',
-                                                       0xFFD700,
-                                                       datetime.datetime.now()))
+                em = await mod_log_format("Message Starred",
+                                             f'Posted by {message.author}({message.author.id}) at {message.created_at}.',
+                                             0xFFD700,
+                                             datetime.datetime.now())
+                em = await log_reaction_users(em, reaction)
+                await modlog.send(embed=em)
 
 def get_filename_from_cd(cd):
     """
@@ -332,6 +339,15 @@ async def handle_image_embed(em, message):
             attach_list += f"[{embed_type} Link {count}]({atta.url})\n"
         em.add_field(name="\u200b", value=f"{attach_list}", inline=True)
         em.set_image(url=message.attachments[0].url)
+    return em
+
+
+async def log_reaction_users(em, reaction):
+    userlist = await reaction.users().flatten()
+    reactionstring = ""
+    for user in userlist:
+        reactionstring += f" <@{user}>({user.id}) "
+    em.add_field(name="\u200b", value=f"Reactors: {reactionstring}", inline=True)
     return em
 
 def setup(bot):
