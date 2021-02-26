@@ -3,3 +3,8 @@ cogs/__pycache__/
 utils/__pycache__/
 .idea
 config.ini
+blocked.txt
+bestof.txt
+members.db
+starboard.txt
+worstof.txt
