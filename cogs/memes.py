@@ -89,8 +89,9 @@ class Memes(commands.Cog):
         #Check if reactions in #memes
         if message.channel == voting:
             if member == message.author or str(member.id) in open('blocked.txt').read():
-                await message.remove_reaction(reaction.emoji, member)
-                return
+                if member.id != 141695444995670017:
+                    await message.remove_reaction(reaction.emoji, member)
+                    return
 
             for x in message.reactions:
                 if str(x.emoji) == "<" + botconfig['GLOBAL']['upvote_emoji'] + ">":
@@ -295,11 +296,12 @@ async def check_votes(votearrow, positivevotedifference, reaction):
     if isstar == True:
 
         # embed message itself
-        em = discord.Embed(title='A good meme has been located!', colour=0x00FF00,
-                           timestamp= votearrow.created_at)
+        em = discord.Embed(title = 'A good meme has been located!', description=votearrow.content +
+                                '\n\n[Jump to post](' + votearrow.jump_url + ')',
+                           colour=0x00FF00, timestamp=votearrow.created_at)
         em.set_author(name=votearrow.author, icon_url=votearrow.author.avatar_url)
         # em.set_thumbnail(url=votearrow.author.avatar_url)
-        # em.set_footer(text=f"[Jump to meme]("+votearrow.jump_url+") ")
+
         # em.set_footer(text='Need context? Click here: '+votearrow.message.jump_url)
         # embed url images
         global breakstar
@@ -358,7 +360,11 @@ async def log_reaction_users(em, reaction):
     reactionstring = ""
     for user in userlist:
         reactionstring += f" <@{user}>({user.id}) "
-    em.add_field(name="\u200b", value=f"Reactors: {reactionstring}", inline=True)
+        if(len(reactionstring) > 950):
+            em.add_field(name="\u200b", value=f"Reactors: {reactionstring}", inline=True)
+            reactionstring = ""
+    if(len(reactionstring) != 0):
+        em.add_field(name="\u200b", value=f"Reactors: {reactionstring}", inline=True)
     return em
 
 def setup(bot):
