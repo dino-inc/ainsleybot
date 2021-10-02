@@ -23,6 +23,7 @@ class Memes(commands.Cog):
         global worstof
         global memeecon
         global modlog
+        global pinboard
         if botconfig['GLOBAL'].getboolean('use_test_guild'):
             guild_ids = botconfig['Test Server']
         else:
@@ -34,6 +35,7 @@ class Memes(commands.Cog):
         worstof = memeecon.get_channel(int(guild_ids['worst_of_id']))
         bestof = memeecon.get_channel(int(guild_ids['best_of_id']))
         modlog = memeecon.get_channel(int(guild_ids['mod_log_id']))
+        pinboard = memeecon.get_channel(int(guild_ids['pinboard_id']))
 
     @commands.Cog.listener()
     async def on_message(self, message):
@@ -240,6 +242,55 @@ class Memes(commands.Cog):
                                              0xFFD700,
                                              datetime.datetime.now())
                 em = await log_reaction_users(em, starboardreaction)
+                await modlog.send(embed=em)
+                
+        
+        # pinboard
+        match = False
+        if str(message.id) in open('pins.txt').read():
+            match = True
+        # checks for the pushpin emoji
+        if reaction.emoji.name == '📌':
+            pinreaction = None
+            for x in message.reactions:
+                if x.emoji == "📌":
+                    pinreaction = x
+			# only pins if reactor can manage messages
+            if not member.guild_permissions.manage_messages:
+                return
+            # checks all of the things to see if it meets best of criteria
+            if (man == True
+                    and message.channel.name != bestof.name
+                    and message.channel.name != worstof.name
+                    and message.channel.name != pinboard.name
+                    and match == False):
+                # embed message itself
+                em = discord.Embed(description=message.content+'\n\n[Jump to post]('+message.jump_url+')',
+                                   colour=0xFF0000, timestamp=message.created_at)
+                em.set_author(name='Pinned message by '+message.author.display_name,
+                              icon_url='https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/120/twitter/282/pushpin_1f4cc.png',
+                              url = message.jump_url)
+                em.set_thumbnail(url=message.author.avatar_url)
+                em.set_footer(text=f"Posted in #{message.channel.name}")
+                # em.add_field(name= "[Context]("+message.jump_url+")", value='whatever I guess')
+                # embed url images
+                try:
+                    em = await(handle_image_embed(em, message))
+                except:
+                    pass
+                # writing message id to pins.txt in order to check for dupes
+                cache = open("pins.txt", "a+", encoding="utf8")
+                cache.write(str(message.id) + " ")
+                cache.close()
+
+                # sending actual embed
+                print("Pinned message by " + str(message.author) + ".")
+                await pinboard.send(embed=em)
+                em = await mod_log_format("Message Pinned",
+                                             f'Posted by {message.author}({message.author.id}) at {message.created_at}. Pinned by {member}.',
+                                             0xFF0000,
+                                             datetime.datetime.now())
+                em = await log_reaction_users(em, pinreaction)
                 await modlog.send(embed=em)
 
 def get_filename_from_cd(cd):
