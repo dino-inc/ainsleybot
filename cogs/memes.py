@@ -259,8 +259,7 @@ class Memes(commands.Cog):
             if not member.guild_permissions.manage_messages:
                 return
             # checks all of the things to see if it meets best of criteria
-            if (man == True
-                    and message.channel.name != bestof.name
+            if (message.channel.name != bestof.name
                     and message.channel.name != worstof.name
                     and message.channel.name != pinboard.name
                     and match == False):
