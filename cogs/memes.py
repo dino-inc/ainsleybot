@@ -14,6 +14,7 @@ class Memes(commands.Cog):
         global owner
         counter = 0
         owner = int(botconfig['GLOBAL']['owner_id'])
+        self.filters = open("filters.txt", "r", encoding="utf8")
 
     @commands.Cog.listener()
     async def on_ready(self):
@@ -45,6 +46,12 @@ class Memes(commands.Cog):
             global bestof
             global counter
             global worstof
+            for word in self.filters:
+                word = word[:-1]
+                print(word)
+                if word in message.content:
+                    await message.delete()
+            self.filters.seek(0,0)
             try:
                 test = message.guild.id
             except:
