@@ -2,7 +2,7 @@
 # https://github.com/Damnever/pigar
 
 # ainsley bot.py: 3
-aiohttp == 3.3.2
+aiohttp == 3.8.1
 
 # ainsley bot.py: 1,2
 # cogs/owner.py: 1
