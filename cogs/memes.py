@@ -48,7 +48,6 @@ class Memes(commands.Cog):
             global worstof
             for word in self.filters:
                 word = word[:-1]
-                print(word)
                 if word in message.content:
                     await message.delete()
             self.filters.seek(0,0)
